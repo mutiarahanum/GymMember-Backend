@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MembershipPackageController;
+use App\Http\Controllers\MembershipController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -15,3 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::apiResource('membership-packages', MembershipPackageController::class);
+
+Route::apiResource('memberships', MembershipController::class);
