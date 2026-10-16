@@ -109,21 +109,36 @@ http://127.0.0.1:8000
 
 ## Endpoint API
 
+
 Semua endpoint API menggunakan prefix `/api`.
 
 | Method | Endpoint | Fungsi |
 |---|---|---|
 | POST | `/api/login` | Login admin |
+| GET | `/api/user` | Melihat data pengguna yang login |
 | GET | `/api/members` | Melihat daftar anggota |
 | POST | `/api/members` | Menambah anggota |
+| GET | `/api/members/{member}` | Melihat detail anggota |
+| PUT/PATCH | `/api/members/{member}` | Memperbarui anggota |
+| DELETE | `/api/members/{member}` | Menghapus anggota |
 | GET | `/api/membership-packages` | Melihat daftar paket |
 | POST | `/api/membership-packages` | Menambah paket |
+| GET | `/api/membership-packages/{membership_package}` | Melihat detail paket |
+| PUT/PATCH | `/api/membership-packages/{membership_package}` | Memperbarui paket |
+| DELETE | `/api/membership-packages/{membership_package}` | Menghapus paket |
 | GET | `/api/memberships` | Melihat daftar membership |
 | POST | `/api/memberships` | Mendaftarkan membership |
+| GET | `/api/memberships/{membership}` | Melihat detail membership |
+| PUT/PATCH | `/api/memberships/{membership}` | Memperbarui membership |
+| DELETE | `/api/memberships/{membership}` | Menghapus membership |
 | GET | `/api/payments` | Melihat daftar pembayaran |
 | POST | `/api/payments` | Mencatat pembayaran |
+| GET | `/api/payments/{payment}` | Melihat detail pembayaran |
+| PUT/PATCH | `/api/payments/{payment}` | Memperbarui pembayaran |
+| DELETE | `/api/payments/{payment}` | Menghapus pembayaran |
 
-Endpoint detail, update, delete, dan aturan autentikasi mengikuti implementasi pada `routes/api.php` dan controller terkait.
+Endpoint tersedia sesuai implementasi pada `routes/api.php` dan controller terkait. Aturan autentikasi mengikuti middleware yang diterapkan pada masing-masing route.
+
 
 ## Akun Demo
 
