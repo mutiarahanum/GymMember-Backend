@@ -2,21 +2,26 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin Gym',
-            'email' => 'admin@gymmember.com',
-            'password' => 'password',
-        ]);
+        $user = User::where('email', 'hanum@gymmember.com')->first();
+
+        if ($user) {
+            $user->update([
+                'name' => 'Admin Gym',
+                'password' => 'hanum098',
+            ]);
+        } else {
+            User::create([
+                'name' => 'Admin Gym',
+                'email' => 'hanum@gymmember.com',
+                'password' => 'hanum098',
+            ]);
+        }
     }
 }

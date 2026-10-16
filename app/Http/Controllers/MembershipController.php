@@ -4,12 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Membership;
+use App\Models\MembershipPackage;
+use Carbon\Carbon;
 
 class MembershipController extends Controller
 {
     public function index()
     {
-        $memberships = Membership::with(['member', 'membershipPackage'])->get();
+        $memberships = Membership::with([
+            'member',
+            'membershipPackage',
+            'payments'
+        ])->get();
+
+        foreach ($memberships as $membership) {
+            $membership->status_membership = $this->cekStatus($membership);
+        }
 
         return response()->json([
             'success' => true,
@@ -24,10 +34,32 @@ class MembershipController extends Controller
             'member_id' => 'required|exists:members,id',
             'membership_package_id' => 'required|exists:membership_packages,id',
             'tanggal_mulai' => 'required|date',
-            'tanggal_berakhir' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
-        $membership = Membership::create($request->all());
+        $paket = MembershipPackage::findOrFail(
+            $request->membership_package_id
+        );
+
+        $tanggalMulai = Carbon::parse($request->tanggal_mulai);
+
+        $tanggalBerakhir = $tanggalMulai
+            ->copy()
+            ->addDays((int) $paket->durasi);
+
+        $membership = Membership::create([
+            'member_id' => $request->member_id,
+            'membership_package_id' => $request->membership_package_id,
+            'tanggal_mulai' => $tanggalMulai->toDateString(),
+            'tanggal_berakhir' => $tanggalBerakhir->toDateString(),
+        ]);
+
+        $membership->load([
+            'member',
+            'membershipPackage',
+            'payments'
+        ]);
+
+        $membership->status_membership = $this->cekStatus($membership);
 
         return response()->json([
             'success' => true,
@@ -38,7 +70,11 @@ class MembershipController extends Controller
 
     public function show($id)
     {
-        $membership = Membership::with(['member', 'membershipPackage'])->find($id);
+        $membership = Membership::with([
+            'member',
+            'membershipPackage',
+            'payments'
+        ])->find($id);
 
         if (!$membership) {
             return response()->json([
@@ -46,6 +82,8 @@ class MembershipController extends Controller
                 'message' => 'Data membership tidak ditemukan'
             ], 404);
         }
+
+        $membership->status_membership = $this->cekStatus($membership);
 
         return response()->json([
             'success' => true,
@@ -69,10 +107,32 @@ class MembershipController extends Controller
             'member_id' => 'required|exists:members,id',
             'membership_package_id' => 'required|exists:membership_packages,id',
             'tanggal_mulai' => 'required|date',
-            'tanggal_berakhir' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
-        $membership->update($request->all());
+        $paket = MembershipPackage::findOrFail(
+            $request->membership_package_id
+        );
+
+        $tanggalMulai = Carbon::parse($request->tanggal_mulai);
+
+        $tanggalBerakhir = $tanggalMulai
+            ->copy()
+            ->addDays((int) $paket->durasi);
+
+        $membership->update([
+            'member_id' => $request->member_id,
+            'membership_package_id' => $request->membership_package_id,
+            'tanggal_mulai' => $tanggalMulai->toDateString(),
+            'tanggal_berakhir' => $tanggalBerakhir->toDateString(),
+        ]);
+
+        $membership->load([
+            'member',
+            'membershipPackage',
+            'payments'
+        ]);
+
+        $membership->status_membership = $this->cekStatus($membership);
 
         return response()->json([
             'success' => true,
@@ -98,5 +158,20 @@ class MembershipController extends Controller
             'success' => true,
             'message' => 'Data membership berhasil dihapus'
         ]);
+    }
+
+    private function cekStatus($membership)
+    {
+        $hariIni = Carbon::today();
+
+        if ($hariIni->lt(Carbon::parse($membership->tanggal_mulai))) {
+            return 'belum aktif';
+        }
+
+        if ($hariIni->gt(Carbon::parse($membership->tanggal_berakhir))) {
+            return 'sudah berakhir';
+        }
+
+        return 'aktif';
     }
 }

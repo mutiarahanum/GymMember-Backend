@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+
+              $table->foreignId('membership_id')
+                ->constrained('memberships')
+                ->onDelete('cascade');
+
+            $table->decimal('jumlah_pembayaran', 10, 2);
+            $table->date('tanggal_pembayaran');
+            $table->string('metode_pembayaran');
+            $table->string('status_pembayaran')->default('berhasil');
+
             $table->timestamps();
         });
     }
